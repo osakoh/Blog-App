@@ -1,0 +1,67 @@
+{% extends "blog/base.html" %}
+{% load blog_tags %}
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+
+    <h1>{{ post.title }}</h1>
+    <p class="date">
+        Published {{ post.publish }} by {{ post.author }}
+    </p>
+
+{#    {{ post.body|linebreaks }}#}
+    {{ post.body|markdown }}
+
+    <p>
+        <!-- using the namespace(blog) and the URL  named post_share -->
+        <a href="{% url "blog:post_share" post.id %}">
+            Share Post?
+        </a>
+    </p>
+    <p>
+{#    {% with %} tags: assigns a value to a new variable to be #}
+{#        used until the closing {% endwith %} tag. #}
+{# The {% with %} template tag is useful to avoid hitting the #}
+{# database or accessing expensive methods multiple times.#}
+        {% with comments.count as total_comments %}
+            <h5>
+                {{ total_comments }} comment'{{ total_comments|pluralize }}
+            </h5>
+        {% endwith %}
+    </p>
+
+    {% for comment in comments %}
+        <div class="comment">
+            <p class="info">
+{# We enumerate comments with the {{ forloop.counter }} variable#}
+                Comment {{ forloop.counter }} by {{ comment.name }},&nbsp;
+                {{ comment.created }}
+            </p>
+            {{ comment.body|linebreaks }}
+        </div>
+    {% empty %}
+        <p>No comments yet</p>
+    {% endfor %}<br>
+
+    <h2>Similar Posts</h2>
+    {% for post in similar_posts %}
+        <p>
+            <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+        </p>
+    {% empty %}
+        No similar post yet.
+    {% endfor %}<br>
+
+
+    {% if new_comment %}
+        <h2>New comment added</h2>
+    {% else %}
+        <h2>Add a new comment</h2>
+        <form action="." method="post">
+        {{ comment_form.as_table }}
+        {% csrf_token %}
+        <p><input type="submit" value="Add comment"></p>
+        </form>
+    {% endif %}
+
+{% endblock %}
