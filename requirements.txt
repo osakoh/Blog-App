@@ -1,0 +1,6 @@
+django_taggit==0.22.2
+Markdown==2.6.11
+libpq-dev python-dev
+postgresql postgresql-contrib
+psycopg2==2.7.4
+Django==2.0.5
