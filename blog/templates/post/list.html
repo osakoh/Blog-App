@@ -1,0 +1,27 @@
+{% extends 'blog/base.html' %}
+
+{% load humanize %}
+
+{% block title %}List {% endblock %}
+
+{#style="width: 60rem;#}
+{% block content %}
+    {% for post in posts %}
+        <div class="card mb-3 mt-2" style="width: 35rem;">
+            <div class="card-body">
+                <h4 class="card-title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h4>
+                <p class="card-text">{{ post.body|truncatewords:20|linebreaks }}</p>
+                <a href="{{ post.get_absolute_url }}" class="btn btn-outline-info">View</a>
+            </div>
+            <div class="card-footer font-italic text-muted date">{{ post.publish|naturalday }} by {{ post.author|title }}</div>
+        </div>
+
+    {% empty %}
+        <h4>No post found.</h4>
+    {% endfor %}
+    {% include 'pagination.html' with page=page_obj %}
+{% endblock %}
+
+
+
+{#for function based view {% include 'pagination.html' with page=posts %}#}

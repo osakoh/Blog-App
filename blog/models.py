@@ -2,46 +2,56 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
-from taggit.managers import TaggableManager
+
+"""
+Django QuerySets are lazy, which means they are only evaluated when they are forced to be. 
+This behavior makes QuerySets very efficient. You can use the filter() method of the manager to filter a QuerySet.
+Certain results can be exclude from your QuerySet using the exclude() method of the manager.
+A canonical URL is the preferred URL for a resource. The Django convention is to add a get_absolute_url() method to the 
+model that returns the canonical URL for the object. The reverse() method allows you to build URLs by their name and pass optional parameters
+"""
 
 
-# objects is the default manager of all models that retrieves all objects
-#  in the database. Creates a custom manager to retrieve all posts with
-#  the published status.
+# custom manager, 'PublishedManager
 class PublishedManager(models.Manager):
     def get_queryset(self):
         return super(PublishedManager, self).get_queryset().filter(status='published')
 
 
+# allows user to create and post a blog
 class Post(models.Model):
+
     STATUS_CHOICES = (
         ('draft', 'Draft'),
         ('published', 'Published'),
     )
-
-    title = models.CharField(max_length=250)
-    slug = models.SlugField(max_length=250, unique_for_date='publish')
+    # when the user is deleted, the database will also delete all related blog posts. if no 'related_name' is defined,
+    # django uses the model name in lowercase, followed by '_set'  to name the relationship of the related object
+    # to the object of the model, i.e 'post_set'
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blog_posts')
+    title = models.CharField(max_length=200, unique=True)  # unique=True: to ensure that a title should not be repeated
+    slug = models.SlugField(max_length=200, unique_for_date='publish')  # publish date is used to build the slug
     body = models.TextField()
-    publish = models.DateTimeField(default=timezone.now)
+    publish = models.DateTimeField(default=timezone.now)  # returns the current datetime in a timezone
+
+    # date will be saved automatically when a blog is created in the database
     created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+
+    updated = models.DateTimeField(auto_now=True)  # changes whenever the 'save' button is pressed
+    # shows the status of a post. The 'choices' parameter sets the value of the field
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
 
-    # default manager
-    objects = models.Manager()
-
-    # custom manager
-    published = PublishedManager()
-
-    tags = TaggableManager()
+    # objects = models.Manager()  # default manager
+    published = PublishedManager()  # custom manager
 
     class Meta:
-        ordering = ('-publish',)
+        ordering = ('-publish',)  # sort according to the latest/newest post
 
+    # returns a string representation
     def __str__(self):
         return self.title
 
+    # used to link to a specific post i.e blog_post_detail
     def get_absolute_url(self):
         return reverse('blog:post_detail',
                        args=[self.publish.year,
@@ -50,25 +60,23 @@ class Post(models.Model):
                              self.slug])
 
 
-# The related_name attribute allows us to name the attribute that we use for
-# the relation from the related object back to this one. After defining
-# this, we can retrieve the post of a comment object using comment.post
-# and retrieve all comments of a post using post.comments.all(). If you
-# don't define the related_name attribute, Django will use the name of the
-# model in lowercase, followed by _set (that is, comment_set) to name the
-# manager of the related object back to this one.
+# comments section
+# The save() method is available for ModelForm but not for Form instances, since they are not linked to any model.
 class Comment(models.Model):
+    # This many-to-one relationship as  each post may have multiple comments. if no 'related_name' is defined, django
+    # uses the model name in lowercase, followed by '_set'  to name the relationship of the related object to the
+    # object of the model, i.e 'comment_set'
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
-    name = models.CharField(max_length=80)
+    name = models.CharField(max_length=25)
     email = models.EmailField()
     body = models.TextField()
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-    # included to manually deactivate inappropriate comments
-    active = models.BooleanField(default=True)
+    created = models.DateTimeField(auto_now_add=True)  # date added to db the first time it's created
+    updated = models.DateTimeField(auto_now=True)  # date added whenever the 'save' button is pressed
+    active = models.BooleanField(default=True)  # to manually deactivate inappropriate comments
 
     class Meta:
         ordering = ('created',)
 
     def __str__(self):
-        return 'Comment by {} on {}'. format(self.name, self.post)
+        return f'Comment by {self.name} on {self.post}'
+

@@ -1,6 +1,8 @@
-django_taggit==0.22.2
-Markdown==2.6.11
-libpq-dev python-dev
-postgresql postgresql-contrib
-psycopg2==2.7.4
-Django==2.0.5
+asgiref==3.3.1
+Django==3.0.11
+django-crispy-forms==1.10.0
+django-taggit==1.2.0
+Markdown==3.2.1
+psycopg2-binary==2.8.4
+pytz==2020.4
+sqlparse==0.4.1

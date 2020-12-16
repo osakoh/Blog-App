@@ -1,18 +1,87 @@
-<div class="pagination">
+<nav aria-label="...">
+    {% if page.has_other_pages %}
 
-    <span class="step-links">
-        {% if page.has_previous %}
-            <a href="?page={{ page.previous_page_number }}">Previous</a>
-        {% endif %}
 
-        <span class="current">
-            Page {{ page.number }} of {{ page.paginator.num_pages }}.
-        </span>
+        <ul class="pagination">
 
-        {% if page.has_next %}
-            <a href="?page={{ page.next_page_number }}">Next</a>
-        {% endif %}
+            {% if page.has_previous %}
 
-    </span>
+                <li class="page-item">
+                    <a data-page="{{ page.previous_page_number }}"
+                       href="?page={{ page.previous_page_number }}" class="page-link">Previous</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><a class="page-link">Previous</a></li>
+            {% endif %}
 
-</div>
+            {% for i in page.paginator.page_range %}
+                {% if page.number == i %}
+                    <li class="page-item active" aria-current="page">
+                      <span class="page-link">
+                        {{ i }}
+                      </span>
+                    </li>
+                {% else %}
+                    <li class="page-item"><a data-page="{{ i }}" href="?page={{ i }}" class="page-link">{{ i }}</a></li>
+                {% endif %}
+
+            {% endfor %}
+
+
+
+            {% if page.has_next %}
+                <li class="page-item">
+                    <a data-page="{{ page.next_page_number }}" href="?page={{ page.next_page_number }}"
+                       class="page-link">Next</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><a class="page-link">Next</a></li>
+            {% endif %}
+        </ul>
+    {% endif %}
+</nav>
+
+{#<div class="pagination">#}
+{##}
+{#    {% if page.has_other_pages %}#}
+{##}
+{#        {% if page.has_previous %}#}
+{#            <a data-page="1" href="?page=1" class="page-link">First</a>#}
+{#            <a data-page="{{ page.previous_page_number }}"#}
+{#               href="?page={{ page.previous_page_number }}" class="page-link">&laquo</a>#}
+{##}
+{#        {% endif %}#}
+{##}
+{##}
+{#        {% for i in page.paginator.page_range %}#}
+{#            {% if page.number == i %}#}
+{#                <a class="active page-link">{{ i }}</a>#}
+{#            {% else %}#}
+{#                <a data-page="{{ i }}" href="?page={{ i }}" class="page-link">{{ i }}</a>#}
+{#            {% endif %}#}
+{##}
+{#        {% endfor %}#}
+{##}
+{##}
+{#        {% if page.has_next %}#}
+{#            <a data-page="{{page.paginator.num_pages}}" href="?page={{page.paginator.num_pages}}" class="page-link">Last</a>#}
+{##}
+{#            <a data-page="{{page.next_page_number}}" href="?page={{page.next_page_number}}" class="page-link">&raquo</a>#}
+{#        {% endif %}#}
+{##}
+{#    {% endif %}#}
+{#</div>#}
+
+{#<div class="pagination">#}
+{#    <span class="step-links">#}
+{#        {% if page.has_previous %}#}
+{#            <a href="?page={{ page.previous_page_number }}#" class="previous"><i class="fa fa-angle-left"></i></a>#}
+{#        {% endif %}#}
+{#        <span class="current">#}
+{#        Page {{ page.number }} of {{ page.paginator.num_pages }}.#}
+{#    </span>#}
+{#        {% if page.has_next %}#}
+{#            <a href="?page={{ page.next_page_number }}" class="next"><i class="fa fa-angle-right"></i></a>#}
+{#        {% endif %}#}
+{#    </span>#}
+{#</div>#}

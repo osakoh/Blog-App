@@ -1,33 +1,25 @@
 from django.contrib import admin
 from .models import Post, Comment
 
-# Register your models here.
 
-
-# @admin.register() decorator performs the same function as the admin.site.register() function we
-@admin.register(Post)
+# adds the blog model to the admin
+@admin.register(Post)  # same as 'admin.site.register(Post)'
+# customises the admin view
 class PostAdmin(admin.ModelAdmin):
-    # list_display: set the fields of your model that you want to display
-    # in the admin object list page. The list page now includes a right
-    # sidebar that allows you to filter the results by the fields included
-    # in the list_filter attribute.
+    # 'list_display' sets fields to be displayed on the admin page
     list_display = ('title', 'slug', 'author', 'publish', 'status')
-    list_filter = ('status', 'created', 'publish', 'author')
-    # creates a search bar
-    search_fields = ('title', 'body')
-    # the slug field gets prepopulated based on the input in the title
-    prepopulated_fields = {'slug': ('title',)}
+    list_editable = ('status',)
+    list_filter = ('status', 'created', 'publish', 'author')  # shows a filter section on the admin site
+    search_fields = ('title', 'body')  # creates a search bar that searches the title and body field
+    prepopulated_fields = {'slug': ('title',)}  # automatically pre-populates the slug field from the title
     raw_id_fields = ('author',)
-    date_hierarchy = 'publish'
+    date_hierarchy = 'publish'  # creates a sort of date (yr & month) breadcrumbs
     ordering = ('status', 'publish')
 
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('name', 'email', 'post', 'created', 'active')
-    list_filter = ('active', 'created', 'updated')
-    search_fields = ('name', 'email', 'body')
-
-
-
-# admin.site.register(Post)
+    list_editable = ('active',)
+    list_filter = ('active', 'created', 'updated')   # shows a filter section on the comment admin site
+    search_fields = ('name', 'email', 'body')   # creates a search field that searches the name, email and body field
